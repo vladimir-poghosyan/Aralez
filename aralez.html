@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta name="robots" content="none">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'self'; frame-src 'self'; font-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:;">
+    <link rel="canonical" href="">
+    <title>ARALEZ</title>
+    <style>
+    :root {
+      --font-family: monospace;
+      --font-colour: #fefefe;
+      --gap: 1rem;
+      --small-vertical-padding: 0.3rem;
+    }
+
+    * {
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: var(--font-colour);
+      background-color: #000;
+      font-family: var(--font-family);
+    }
+
+    body header {
+      padding: 0.5rem 1rem;
+
+      h1 {
+        margin: 0;
+        padding: 0;
+      }
+
+      a {
+        text-decoration: none;
+        color: var(--font-colour);
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      img {
+        height: 2.5rem;
+      }
+    }
+
+    body main {
+      flex-grow: 1;
+      padding: 1rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    body input, textarea {
+      border-radius: 0;
+    }
+
+    body button {
+      background: #151515;
+      border: 2px solid var(--font-colour);
+      padding: var(--small-vertical-padding) 1rem;
+      cursor: pointer;
+      color: var(--font-colour);
+      font-family: var(--font-family);
+      font-size: 0.9rem;
+    }
+
+    body button:hover, button:focus {
+      outline-width: 0.1rem;
+      outline-style: solid;
+    }
+
+    button.stripped {
+      border: none;
+      background: none;
+      padding: 0;
+      font-size: 1.2rem;
+      font-weight: bold;
+      line-height: 0;
+      vertical-align: middle;
+    }
+
+    button.stripped:hover, button.stripped:focus {
+      background: none;
+      border: none;
+      outline: none;
+    }
+
+    body main ul {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      list-style: none;
+      margin: 0px;
+      padding: 0px 0px 5px 0px;
+      overflow: auto;
+    }
+
+    body main ul li {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--gap);
+      padding: 1.5rem 1rem;
+      background: #151515;
+      box-shadow: 0px 1px 3px #646464;
+      font-size: 1.2rem;
+      transition: 0.2s background ease;
+
+      &:hover {
+        background: #1b1b1b;
+      }
+
+      pre {
+        margin: 0;
+        padding: 0;
+        font-size: 1rem;
+        white-space: pre-wrap;
+      }
+
+      button {
+        border: none;
+        background: transparent;
+        font-size: 1rem;
+        padding: var(--small-vertical-padding) 0.5rem;
+      }
+
+      button:hover, button:focus {
+        border: none;
+      }
+
+      .grid-columns {
+        margin-left: auto;
+      }
+    }
+
+    .text-collapse {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .grid-columns {
+      display: grid;
+      grid-auto-flow: column;
+    }
+
+    dialog[open] {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      background-color: #202020;
+      color: var(--font-colour);
+      padding: 0;
+      min-width: 30vw;
+      border: 1px solid var(--font-colour);
+      font-size: 1rem;
+    }
+
+    dialog {
+      header {
+        text-align: center;
+        padding: 0.5rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        background: #000;
+      }
+
+      section {
+        flex-grow: 1;
+        padding: 0 1rem;
+      }
+
+      footer {
+        border: none;
+        justify-content: left;
+        gap: 0.5rem;
+        background: #000;
+        padding: 1rem;
+      }
+
+      pre {
+        white-space: pre-wrap;
+      }
+
+      label input,textarea,select {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid var(--font-colour);
+        caret-color: var(--font-colour);
+        color: var(--font-colour);
+        font-family: var(--font-family);
+        font-size: 1rem;
+      }
+
+      label input[disabled], select[disabled] {
+        border-bottom: 2px solid #bbb;
+        color: #bbb;
+      }
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+
+      div {
+        flex-grow: 1;
+        text-align: right;
+      }
+
+      input {
+        background: transparent;
+        color: var(--font-colour);
+        border: none;
+        border-bottom: 2px solid var(--font-colour);
+        padding: var(--small-vertical-padding);
+        font-size: 1rem;
+        font-family: var(--font-family);
+        min-width: 20%;
+      }
+    }
+    </style>
+    <script type="text/javascript">
+"use strict"
+
+const save = () => {
+  // notify user of unsaved changes
+  if (!window.onbeforeunload) {
+    window.onbeforeunload = event => {
+      event.preventDefault();
+      event.returnValue = true;
+    };
+  }
+
+  if (window.location.protocol == "file:") {  // don't save if the file is openned locally
+    return
+  }
+
+  fetch(
+    window.location.pathname,
+    {
+      method: "PUT",
+      body: decodeURIComponent(document.querySelector("data#secrets").value),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }
+  ).then(response => {
+    if (response.status !== 200) {
+      return UI.showError(`Failed to save changes [${response.statusText}]`)
+    }
+
+    window.onbeforeunload = null;
+  }).catch(e => {
+    UI.showError(`Failed to save the changes [${e}]`)
+  })
+};
+
+const getPIN = dialog => {
+  const pin = dialog.querySelector("input[name='pin']").value;
+  if (!pin) {
+    throw new Error("PIN is required")
+  }
+
+  if (pin.length < 12) {
+    throw new Error("PIN must contain at least 12 characters")
+  }
+
+  return pin
+};
+
+const encryptSecrets = async function (pin, secret, totpSecret) {
+  return [
+    await NCryptr.encrypt(pin, secret),
+    totpSecret ? await NCryptr.encrypt(pin, totpSecret) : null
+  ]
+}
+
+const NCryptr = {
+  SALT: "",
+
+  deriveKeyFromPIN: async function (pin) {
+    const encoder = new TextEncoder();
+    const pinBuffer = encoder.encode(pin);
+
+    const keyMaterial = await crypto.subtle.importKey(
+      "raw",
+      pinBuffer,
+      "PBKDF2",
+      false,
+      ["deriveKey"]
+    );
+
+    const key = await crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        salt: encoder.encode(this.SALT),
+        iterations: 300000,
+        hash: "SHA-512",
+      },
+      keyMaterial,
+      {
+        name: "AES-GCM",
+        length: 256,
+      },
+      false,
+      ["encrypt", "decrypt"]
+    );
+
+    return key;
+  },
+
+  encrypt: async function (pin, message) {
+    const key = await this.deriveKeyFromPIN(pin);
+    const encoder = new TextEncoder();
+
+    // Generate a random nonce (12 bytes for AES-GCM)
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+
+    const encryptedBuffer = await crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      key,
+      encoder.encode(message)
+    );
+
+    const encryptedUint8Array = new Uint8Array(encryptedBuffer);
+    const combinedBuffer = new Uint8Array(iv.length + encryptedUint8Array.length);
+    combinedBuffer.set(iv)
+    combinedBuffer.set(encryptedUint8Array, iv.length);
+
+    return btoa(String.fromCharCode(...combinedBuffer))
+  },
+
+  decrypt: async function (pin, cypherText) {
+    const combinedData = new Uint8Array(atob(cypherText).split("").map(c => c.charCodeAt(0)));
+    const iv = combinedData.subarray(0, 12);
+    const encryptedBuffer = combinedData.subarray(12);
+    const key = await this.deriveKeyFromPIN(pin);
+
+    const decryptedBuffer = await crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      key,
+      encryptedBuffer,
+    );
+
+    return (new TextDecoder()).decode(decryptedBuffer)
+  },
+
+  totp: async function (pin, secret, hashAlgorithm) {
+    const epoch = Math.round(new Date().getTime() / 1000.0);
+    const data = this.utils.hexToBuf(
+      this.utils.leftPad(this.utils.decToHex(Math.floor(epoch / 30)), 16, "0")
+    );
+
+    const key = await crypto.subtle.importKey(
+      "raw",
+      this.utils.hexToBuf(this.utils.base32ToHex(await this.decrypt(pin, secret))),
+      {
+        name: "HMAC",
+        hash: hashAlgorithm,
+      },
+      false,
+      ["sign"]
+    );
+
+    const signature = new Uint8Array(await crypto.subtle.sign(
+      {
+        name: "HMAC",
+        hash: hashAlgorithm,
+      },
+      key,
+      data
+    ));
+    const offset = signature[signature.length - 1] & 0xf;
+
+    return [(
+        ((signature[offset] & 0x7f) << 24)
+        | ((signature[offset + 1] & 0xff) << 16)
+        | ((signature[offset + 2] & 0xff) << 8)
+        | (signature[offset + 3] & 0xff)
+      ) % 1000000,
+      epoch
+    ]
+  },
+
+  utils: {
+    leftPad: (str, len, pad) => {
+      return len + 1 >= str.length ? Array(len + 1 - str.length).join(pad) + str : str
+    },
+
+    base32ToHex: function (base32) {
+      const base32Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+      let bits = "";
+      let hex = "";
+
+      for (let i = 0; i < base32.length; i++) {
+        bits += this.leftPad(base32Chars.indexOf(base32.charAt(i).toUpperCase()).toString(2), 5, "0");
+      }
+
+      for (let i = 0; i + 4 <= bits.length; i += 4) {
+        hex = hex + parseInt(bits.substr(i, 4), 2).toString(16) ;
+      }
+
+      return hex
+    },
+
+    decToHex: s => (s < 15.5 ? '0' : '') + Math.round(s).toString(16),
+    hexToBuf: hex => {
+      const bytes = [];
+      for (let c = 0; c < hex.length; c += 2) {
+        bytes.push(parseInt(hex.substr(c, 2), 16));
+      }
+
+      return new Uint8Array(bytes);
+    }
+  }
+};
+
+const Secrets = {
+  get: () => {
+    const rawValue = decodeURIComponent(document.querySelector("data#secrets").value);
+    if (rawValue) {
+      return JSON.parse(rawValue);
+    }
+
+    return [];
+  },
+
+  set: secrets => {
+    document.querySelector("data#secrets").value = encodeURIComponent(JSON.stringify(secrets));
+    save();
+  },
+
+  add: function(secret, callback) {
+    if (!secret.title) {
+      throw new Error("Secret's title is required")
+    }
+
+    if (!secret.secret) {
+      throw new Error("Secretis required")
+    }
+
+    if (secret.totpSecret && ! new Set(secret.totpSecret.toUpperCase()).isSubsetOf(new Set("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567="))) {
+      throw new Error("TOTP secret must be a valid Base32 encoded string")
+    }
+
+    if (secret.totpHashAlgorithm !== "SHA-1") {
+      throw new Error("Invalid hashing algorithm for TOTP")
+    }
+
+    secret.secret += `\n\n\nCreated at ${new Date().toISOString()}`;
+
+    UI.showPinDialog("Encrypt new secret", dialog => {
+      encryptSecrets(getPIN(dialog), secret.secret, secret.totpSecret).then(encrypted => {
+        secret.secret = encrypted[0];
+        secret.totpSecret = encrypted[1];
+
+        const secrets = this.get();
+        const secretId = secrets.push(secret) - 1;
+        this.set(secrets)
+
+        callback && callback(secretId, secret);
+      }).catch(e => {
+        UI.showError(`Encryption failed\n\nDetails: ${e}`)
+      });
+    });
+  },
+
+  remove: function(secretId, callback) {
+    const secrets = this.get();
+
+    UI.showPinDialog("Delete the entry", dialog => {
+      NCryptr.decrypt(getPIN(dialog), secrets[secretId].secret).then(plaintext => {
+        secrets.splice(secretId, 1);
+        this.set(secrets);
+        callback && callback(secretId);
+      }).catch(e => {
+        UI.showError(`Decryption failed!\n\nDetails: ${e}`)
+      });
+    });
+  },
+
+  move: function(secretId, offset, callback) {
+    const secrets = this.get();
+    const secret = secrets.splice(secretId, 1)[0];
+    secrets.splice(secretId + offset, 0, secret);
+    this.set(secrets);
+    callback && callback();
+  }
+};
+
+const UI = {
+  showSplash: function(target, message, timeout = 10000) {
+    const originalContent = target.innerHTML;
+    target.innerHTML = `<pre>${message.replace("<", "&lt;").replace(">", "&gt;")}</pre>`;
+    setTimeout(() => {
+      target.innerHTML = originalContent;
+      registerEventListeners(target);
+    }, timeout);
+  },
+
+  showModalDialog: function(body, onOk) {
+    const dialog = document.createElement("dialog");
+    dialog.innerHTML = body;
+
+    dialog.addEventListener("close", event => {
+      event.target.remove();
+      switch (event.target.returnValue) {
+        case "":
+        case "cancel":
+          return true;
+        case "ok":
+          try {
+           onOk && onOk(event.target);
+          } catch (err) {
+            return this.showError(err);
+          }
+          break;
+        default:
+          alert("Invalid action taken on user prompt");
+          return true
+      }
+    });
+
+    document.body.appendChild(dialog);
+    dialog.showModal();
+  },
+
+  showError: function(message) {
+    this.showModalDialog(
+      `<header>Error</header>
+<section>
+  <form id="dialog_form" method="dialog">
+    <pre>${message}</pre>
+  </form>
+</section>
+<footer>
+  <button form="dialog_form" value="ok">Close</button>
+</footer>`
+    )
+  },
+
+  showPinDialog: function(title, onOk) {
+    this.showModalDialog(
+      `<header>${title}</header>
+<section>
+  <form id="dialog_form" method="dialog">
+    <label>PIN<input name="pin" type="password" required autocomplete="false" minlength="12" /></label>
+  </form>
+</section>
+<footer>
+  <button form="dialog_form" value="ok">Ok</button>
+  <button form="dialog_form" formnovalidate value="cancel">Cancel</button>
+</footer>`,
+      onOk
+    )
+  },
+
+  showCreateDialog: function(onOk) {
+    this.showModalDialog(
+      `<header>New Secret</header>
+<section>
+  <form id="dialog_form" method="dialog">
+    <label>Title<input name="title" type="text" required autocomplete="false" placeholder="Title of the stored secret" /></label>
+    <br/>
+    <label>Secret<textarea rows="5" name="secret" required autocomplete="false" placeholder="Secret to be stored"></textarea></label>
+    <br/>
+    <label>TOTP Secret<input name="totp_secret" type="text" autocomplete="false" placeholder="Base32 encoded TOTP secret" /></label>
+    <br/>
+    <label>TOTP Hash Algorithm<select disabled name="totp_hash_algorithm"><option value="SHA-1" selected>SHA-1</option><option value="SHA-256">SHA-256</option></select></label>
+  </form>
+</section>
+<footer>
+  <button form="dialog_form" value="ok">Create</button>
+  <button form="dialog_form" formnovalidate value="cancel">Cancel</button>
+</footer>`,
+      onOk
+    )
+  },
+
+  addSecret: function(secretId, secret) {
+    const buffer = document.createElement("div");
+    buffer.innerHTML = UI.renderSecret(secretId, secret);
+    const listItem = buffer.firstElementChild;
+
+    document.querySelector("main>ul").appendChild(listItem);
+    registerEventListeners(listItem);
+  },
+
+  renderSecret: function(secretId, secret) {
+    const totpButton = secret.totpSecret ? `<button type="button" title="TOTP" aria-label="TOTP" data-action="totp">⏱</button>` : "";
+    return `<li data-secret="${secretId}">\
+<span class="text-collapse">${secret.title}</span>\
+<div class="grid-columns">\
+${totpButton}\
+<button type="button" title="reveil" aria-label="reveil" data-action="reveil">👁</button>\
+<button type="button" title="remove" aria-label="remove" data-action="remove">🗑</button>\
+<button type="button" title="move up" aria-label="move up" data-action="moveUp">▲</button>\
+<button type="button" title="move down" aria-label="move down" data-action="moveDown">▼</button>\
+</div>\
+</li>`;
+  },
+
+  reindexSecrets: function(listing) {
+    listing.querySelectorAll("li").forEach((listItem, index) => {
+      listItem.dataset.secret = index;
+    });
+  }
+};
+
+const handlers = {
+  newSecret: event => {
+    UI.showCreateDialog(dialog => {
+      const secret = {
+        title: dialog.querySelector("input[name='title']").value.trim(),
+        secret: dialog.querySelector("textarea[name='secret']").value.trim(),
+        totpSecret: (dialog.querySelector("input[name='totp_secret']").value || "").trim(),
+        totpHashAlgorithm: dialog.querySelector("select[name='totp_hash_algorithm']").value
+      };
+
+      try {
+        const secretId = Secrets.add(secret, UI.addSecret);
+      } catch (err) {
+        return UI.showError(err);
+      }
+    })
+  },
+
+  reveil: event => {
+    event.stopPropagation();
+    const listItem = event.target.closest("li");
+
+    UI.showPinDialog("Reviel the secret", dialog => {
+      NCryptr.decrypt(getPIN(dialog), Secrets.get()[listItem.dataset.secret].secret).then(plaintext => {
+        UI.showSplash(listItem, plaintext)
+      }).catch(e => {
+        UI.showError(`Decryption failed! Please check the PIN\n\nDetails: ${e}`)
+      });
+    });
+  },
+
+  totp: event => {
+    event.stopPropagation();
+    const listItem = event.target.closest("li");
+    const secret = Secrets.get()[listItem.dataset.secret];
+
+    UI.showPinDialog("Generate TOTP", dialog => {
+      NCryptr.totp(
+        getPIN(dialog),
+        secret.totpSecret,
+        secret.totpHashAlgorithm,
+      ).then(otp => {
+        UI.showSplash(
+          listItem,
+          otp[0].toString() + `\n\nValid for ${ 30 - (otp[1] % 30)} seconds`
+        );
+      }).catch(e => {
+        UI.showError(`Decryption failed! Please check the PIN\n\nDetails: ${e}`)
+      });
+    });
+  },
+
+  remove: event => {
+    event.stopPropagation();
+    const listItem = event.target.closest("li");
+
+    try {
+      Secrets.remove(listItem.dataset.secret, () => {
+        const listing = listItem.parentElement;
+        listItem.remove();
+        UI.reindexSecrets(listing);
+      });
+    } catch (err) {
+      return UI.showError(err);
+    }
+  },
+
+  moveUp: event => {
+    const listItem = event.target.closest("li");
+    if (listItem.previousElementSibling) {
+      Secrets.move(parseInt(listItem.dataset.secret), -1, () => {
+        listItem.parentElement.insertBefore(listItem, listItem.previousElementSibling);
+        UI.reindexSecrets(listItem.parentElement);
+      });
+    }
+  },
+
+  moveDown: event => {
+    const listItem = event.target.closest("li");
+    if (listItem.nextElementSibling) {
+      Secrets.move(parseInt(listItem.dataset.secret), 1, () => {
+        listItem.parentElement.insertBefore(listItem, listItem.nextElementSibling.nextElementSibling);
+        UI.reindexSecrets(listItem.parentElement);
+      });
+    }
+  },
+
+  search: event => {
+    const phrase = event.target.value.toLowerCase();
+    document.body.querySelectorAll("ul li").forEach(listItem => {
+      if (!phrase || listItem.querySelector("span").innerText.toLowerCase().includes(phrase)) {
+        listItem.style.display = "flex";
+      } else {
+        listItem.style.display = "none";
+      }
+    });
+  },
+
+  info: () => {
+    UI.showModalDialog(`<header>Information</header>
+<section>
+  <form id="dialog_form" method="dialog">
+    <p>
+      Simple secure secret storage.
+      <br/><br/>
+      The page can be saved locally (<code>Ctrl+s</code>) and then accessed as is.
+      <br/><br/>
+      Author: Vladimir Poghosyan
+    </p>
+  </form>
+</section>
+<footer><button form="dialog_form" value="ok">Close</button></footer>`
+    )
+  }
+};
+
+const registerEventListeners = root => {
+  root.querySelectorAll("[data-action]").forEach(trigger => {
+    trigger.addEventListener("click", handlers[trigger.dataset.action], true);
+  });
+
+  root.querySelectorAll("[data-keyup]").forEach(trigger => {
+    trigger.addEventListener("keyup", handlers[trigger.dataset.keyup], true);
+  });
+};
+
+document.addEventListener("DOMContentLoaded", event => {
+  NCryptr.SALT = document.querySelector("data#salt").value;
+  document.querySelector("main>ul").innerHTML = Secrets.get().map((secret, index) => UI.renderSecret(index, secret)).join("");
+  registerEventListeners(document);
+});
+    </script>
+  </head>
+  <body>
+    <header>
+      <h1>
+        <a href="">
+          <img src="data:image/png;base64, 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" alt="aralez" />
+          A R A L E Z
+        </a>
+      </h1>
+    </header>
+    <main>
+      <search class="top-controls">
+        <button autofocus="" type="button" title="new secret" aria-label="new secret" data-action="newSecret">New</button>
+        <div>
+          <input type="search" placeholder="Search" data-keyup="search">
+          <button class="stripped" type="button" title="information" aria-label="information" data-action="info">ⓘ</button>
+        </div>
+      </search>
+      <ul tabindex="-1"></ul>
+    </main>
+    <data id="secrets" value="[]"></data>
+    <data id="salt" value="P8sCRcBSjWDNCHq8C_J7uv02LWfdG3jrOqefFgME4nk"></data>
+  </body>
+</html>
