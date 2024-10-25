@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'self'; frame-src 'self'; font-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:;">
     <link rel="canonical" href="">
-    <title>ARALEZ</title>
+    <title>Aralez</title>
     <style>
     :root {
       --font-family: monospace;
@@ -141,6 +141,7 @@
         background: transparent;
         font-size: 1rem;
         padding: var(--small-vertical-padding) 0.5rem;
+        line-height: 100%;
       }
 
       button:hover, button:focus {
@@ -214,6 +215,10 @@
       label input[disabled], select[disabled] {
         border-bottom: 2px solid #bbb;
         color: #bbb;
+      }
+
+      a {
+        color: var(--font-colour);
       }
     }
 
@@ -736,20 +741,7 @@ const handlers = {
   },
 
   info: () => {
-    UI.showModalDialog(`<header>Information</header>
-<section>
-  <form id="dialog_form" method="dialog">
-    <p>
-      Simple secure secret storage.
-      <br/><br/>
-      The page can be saved locally (<code>Ctrl+s</code>) and then accessed as is.
-      <br/><br/>
-      Author: Vladimir Poghosyan
-    </p>
-  </form>
-</section>
-<footer><button form="dialog_form" value="ok">Close</button></footer>`
-    )
+    document.getElementById("info_dialog").showModal();
   }
 };
 
@@ -786,6 +778,26 @@ document.addEventListener("DOMContentLoaded", event => {
           <input type="search" placeholder="Search" data-keyup="search">
           <button class="stripped" type="button" title="information" aria-label="information" data-action="info">ⓘ</button>
         </div>
+        <dialog id="info_dialog">
+          <header>Information</header>
+          <section>
+            <form id="info_dialog_form" method="dialog">
+              <p>
+                Simple secure secret storage.
+                <a rel="noopener noreferrer" target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API">WebCrypto API</a>
+                is used for securely storing all PIN protected secrets.
+                <br/><br/>
+                The page can be saved locally (<code>Ctrl+s</code>) and then accessed as is.
+                <br/><br/>
+                Author: Vladimir Poghosyan
+                Source: <a rel="noopener noreferrer" target="_blank" href="https://github.com/vladimir-poghosyan/aralez">GitHub</a>
+              </p>
+            </form>
+          </section>
+          <footer>
+            <button form="info_dialog_form" value="ok">Close</button>
+          </footer>
+        </dialog>
       </search>
       <ul tabindex="-1"></ul>
     </main>
