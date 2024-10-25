@@ -1,2 +1,2 @@
 # Aralez
-WebCrypto based secret/password manager
+WebCrypto based secret/password manager (more information coming soon...)
