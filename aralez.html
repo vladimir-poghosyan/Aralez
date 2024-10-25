@@ -627,7 +627,7 @@ const UI = {
 <span class="text-collapse">${secret.title}</span>\
 <div class="grid-columns">\
 ${totpButton}\
-<button type="button" title="reveil" aria-label="reveil" data-action="reveil">👁</button>\
+<button type="button" title="reveal" aria-label="reveal" data-action="reveal">👁</button>\
 <button type="button" title="remove" aria-label="remove" data-action="remove">🗑</button>\
 <button type="button" title="move up" aria-label="move up" data-action="moveUp">▲</button>\
 <button type="button" title="move down" aria-label="move down" data-action="moveDown">▼</button>\
@@ -660,11 +660,11 @@ const handlers = {
     })
   },
 
-  reveil: event => {
+  reveal: event => {
     event.stopPropagation();
     const listItem = event.target.closest("li");
 
-    UI.showPinDialog("Reviel the secret", dialog => {
+    UI.showPinDialog("Reveal the secret", dialog => {
       NCryptr.decrypt(getPIN(dialog), Secrets.get()[listItem.dataset.secret].secret).then(plaintext => {
         UI.showSplash(listItem, plaintext)
       }).catch(e => {
