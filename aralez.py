@@ -19,8 +19,6 @@ def http_serve(args: Namespace) -> None:
     """ Serve Aralez template over HTTPS
 
     """
-    now = datetime.now()
-
     HTML_TEMPLATE: bytes = args.template.read()
     HTML_TEMPLATE_PATH: str = args.template.name
     BASIC_AUTH: str = args.auth
@@ -40,6 +38,8 @@ def http_serve(args: Namespace) -> None:
                 response_status = '404 Not Found'
                 response_body = b'<h1>404 Not Found</h1>'
             else:
+                now = datetime.now()
+
                 if BASIC_AUTH and not (
                     (credentials := env.get('HTTP_AUTHORIZATION'))
                     and b64decode(
