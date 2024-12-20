@@ -526,7 +526,7 @@ const Secrets = {
 const UI = {
   showSplash: function(target, message, timeout = 10000) {
     const originalContent = target.innerHTML;
-    target.innerHTML = `<pre>${message.replace("<", "&lt;").replace(">", "&gt;")}</pre>`;
+    target.innerHTML = `<pre>${message.replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</pre>`;
     setTimeout(() => {
       target.innerHTML = originalContent;
       registerEventListeners(target);
