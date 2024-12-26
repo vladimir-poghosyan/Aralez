@@ -222,6 +222,12 @@
       }
     }
 
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
     label {
       display: flex;
       flex-direction: column;
@@ -284,14 +290,18 @@ const save = () => {
   })
 };
 
-const getPIN = dialog => {
+const getPIN = (dialog, verify = false) => {
   const pin = dialog.querySelector("input[name='pin']").value;
   if (!pin) {
-    throw new Error("PIN is required")
+    throw new Error("PIN is required");
   }
 
   if (pin.length < 12) {
-    throw new Error("PIN must contain at least 12 characters")
+    throw new Error("PIN must contain at least 12 characters");
+  }
+
+  if (verify && pin != dialog.querySelector("input[name='pin_again']")?.value) {
+    throw new Error("The entered PIN doesn't match. Please try again");
   }
 
   return pin
@@ -484,8 +494,8 @@ const Secrets = {
 
     secret.secret += `\n\n\nCreated at ${new Date().toISOString()}`;
 
-    UI.showPinDialog("Encrypt new secret", dialog => {
-      encryptSecrets(getPIN(dialog), secret.secret, secret.totpSecret).then(encrypted => {
+    UI.showDoublePinDialog("Encrypt new secret", dialog => {
+      encryptSecrets(getPIN(dialog, true), secret.secret, secret.totpSecret).then(encrypted => {
         secret.secret = encrypted[0];
         secret.totpSecret = encrypted[1];
 
@@ -590,17 +600,31 @@ const UI = {
     )
   },
 
+  showDoublePinDialog: function(title, onOk) {
+    this.showModalDialog(
+      `<header>${title}</header>
+<section>
+  <form id="dialog_form" method="dialog">
+    <label>PIN<input name="pin" type="password" required autocomplete="false" minlength="12" /></label>
+    <label>Repeat the PIN<input name="pin_again" type="password" required autocomplete="false" minlength="12" /></label>
+  </form>
+</section>
+<footer>
+  <button form="dialog_form" value="ok">Ok</button>
+  <button form="dialog_form" formnovalidate value="cancel">Cancel</button>
+</footer>`,
+      onOk
+    )
+  },
+
   showCreateDialog: function(onOk) {
     this.showModalDialog(
       `<header>New Secret</header>
 <section>
   <form id="dialog_form" method="dialog">
     <label>Title<input name="title" type="text" required autocomplete="false" placeholder="Title of the stored secret" /></label>
-    <br/>
     <label>Secret<textarea rows="5" name="secret" required autocomplete="false" placeholder="Secret to be stored"></textarea></label>
-    <br/>
     <label>TOTP Secret<input name="totp_secret" type="text" autocomplete="false" placeholder="Base32 encoded TOTP secret" /></label>
-    <br/>
     <label>TOTP Hash Algorithm<select disabled name="totp_hash_algorithm"><option value="SHA-1" selected>SHA-1</option><option value="SHA-256">SHA-256</option></select></label>
   </form>
 </section>
@@ -684,10 +708,13 @@ const handlers = {
         secret.totpSecret,
         secret.totpHashAlgorithm,
       ).then(otp => {
+        const totp = otp[0].toString();
         UI.showSplash(
           listItem,
-          otp[0].toString() + `\n\nValid for ${ 30 - (otp[1] % 30)} seconds`
+          totp + `\n\nValid for ${ 30 - (otp[1] % 30)} seconds (copied to clipboard)`
         );
+
+        navigator.clipboard.writeText(totp);
       }).catch(e => {
         UI.showError(`Decryption failed! Please check the PIN\n\nDetails: ${e}`)
       });
