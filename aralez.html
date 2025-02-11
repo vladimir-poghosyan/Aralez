@@ -417,12 +417,19 @@ const NCryptr = {
     ));
     const offset = signature[signature.length - 1] & 0xf;
 
-    return [(
-        ((signature[offset] & 0x7f) << 24)
-        | ((signature[offset + 1] & 0xff) << 16)
-        | ((signature[offset + 2] & 0xff) << 8)
-        | (signature[offset + 3] & 0xff)
-      ) % 1000000,
+    return [
+      this.utils.leftPad(
+        (
+          (
+            ((signature[offset] & 0x7f) << 24)
+            | ((signature[offset + 1] & 0xff) << 16)
+            | ((signature[offset + 2] & 0xff) << 8)
+            | (signature[offset + 3] & 0xff)
+          ) % 1000000
+        ).toString(),
+        6,
+        "0"
+      ),
       epoch
     ]
   },
