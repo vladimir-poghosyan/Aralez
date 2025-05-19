@@ -393,7 +393,7 @@ const NCryptr = {
   totp: async function (pin, secret, hashAlgorithm) {
     const epoch = Math.round(new Date().getTime() / 1000.0);
     const data = this.utils.hexToBuf(
-      this.utils.leftPad(this.utils.decToHex(Math.floor(epoch / 30)), 16, "0")
+      this.utils.decToHex(Math.floor(epoch / 30)).padStart(16, "0")
     );
 
     const key = await crypto.subtle.importKey(
@@ -418,34 +418,26 @@ const NCryptr = {
     const offset = signature[signature.length - 1] & 0xf;
 
     return [
-      this.utils.leftPad(
+      (
         (
-          (
-            ((signature[offset] & 0x7f) << 24)
-            | ((signature[offset + 1] & 0xff) << 16)
-            | ((signature[offset + 2] & 0xff) << 8)
-            | (signature[offset + 3] & 0xff)
-          ) % 1000000
-        ).toString(),
-        6,
-        "0"
-      ),
+          ((signature[offset] & 0x7f) << 24)
+          | ((signature[offset + 1] & 0xff) << 16)
+          | ((signature[offset + 2] & 0xff) << 8)
+          | (signature[offset + 3] & 0xff)
+        ) % 1000000
+      ).toString().padStart(6, "0"),
       epoch
     ]
   },
 
   utils: {
-    leftPad: (str, len, pad) => {
-      return len + 1 >= str.length ? Array(len + 1 - str.length).join(pad) + str : str
-    },
-
     base32ToHex: function (base32) {
       const base32Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
       let bits = "";
       let hex = "";
 
       for (let i = 0; i < base32.length; i++) {
-        bits += this.leftPad(base32Chars.indexOf(base32.charAt(i).toUpperCase()).toString(2), 5, "0");
+        bits += base32Chars.indexOf(base32.charAt(i).toUpperCase()).toString(2).padStart(5, "0");
       }
 
       for (let i = 0; i + 4 <= bits.length; i += 4) {
