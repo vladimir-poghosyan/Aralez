@@ -782,7 +782,25 @@ const registerEventListeners = root => {
 };
 
 document.addEventListener("DOMContentLoaded", event => {
-  NCryptr.SALT = document.querySelector("data#salt").value;
+  let salt = document.querySelector("data#salt").value;
+  if (!salt) {
+    salt = window.crypto.randomUUID();
+    document.querySelector("data#salt").setAttribute("value", salt);
+    save();
+
+    alert(
+	  `⚠️ WARNING!
+
+A new cryptographic salt has been automatically generated.
+
+This may be due to first-time use or possible file corruption.
+As a result, previously saved secrets cannot be decrypted.
+
+Please save your document and reload it before making any changes to secrets.`
+    );
+  }
+
+  NCryptr.SALT = salt;
   document.querySelector("main>ul").innerHTML = Secrets.get().map((secret, index) => UI.renderSecret(index, secret)).join("");
   registerEventListeners(document);
 });
@@ -828,6 +846,6 @@ document.addEventListener("DOMContentLoaded", event => {
       <ul tabindex="-1"></ul>
     </main>
     <data id="secrets" value="[]"></data>
-    <data id="salt" value="P8sCRcBSjWDNCHq8C_J7uv02LWfdG3jrOqefFgME4nk"></data>
+    <data id="salt" value=""></data>
   </body>
 </html>
